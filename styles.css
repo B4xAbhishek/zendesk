@@ -37,6 +37,38 @@ body {
     border-bottom: 3px solid #1F73B7;
 }
 
+/* Main Navigation */
+.main-nav {
+    background-color: #03363D;
+    padding: 0;
+    margin-bottom: 1px;
+}
+
+.main-nav .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+}
+
+.main-nav a {
+    color: #ffffff;
+    padding: 20px 24px;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.main-nav a:hover {
+    background-color: #144A75;
+}
+
+.main-nav a.active {
+    background-color: #1F73B7;
+    border-bottom: 3px solid #ffffff;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -44,16 +76,25 @@ body {
 }
 
 .section {
+    display: none;
+    padding: 2rem;
     background-color: white;
     border-radius: 6px;
-    padding: 32px;
     margin-bottom: 30px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.04);
-    display: none;
     border: 1px solid #F0F2F4;
 }
 
 .section.active {
+    display: block;
+}
+
+/* Main Sections */
+.main-section {
+    display: none;
+}
+
+.main-section.active {
     display: block;
 }
 
@@ -66,15 +107,42 @@ h2 {
 }
 
 .form-group {
-    margin-bottom: 28px;
+    margin-bottom: 1rem;
 }
 
-label {
+.form-group label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 0.5rem;
     font-weight: 500;
     color: #2F3941;
     font-size: 14px;
+}
+
+.form-group label::after {
+    content: "*";
+    color: #d32f2f;
+    margin-left: 4px;
+}
+
+.form-group label[for="add-sku-replaced"]::after,
+.form-group label[for="update-sku-replaced"]::after {
+    content: "";
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    border-color: #1f73b7;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(31, 115, 183, 0.2);
 }
 
 .c-txt__input, input[type="date"], select {
@@ -145,6 +213,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: #A12D08;
 }
 
+.button-primary {
+    background-color: #1f73b7;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+.button-primary:hover {
+    background-color: #1a5c94;
+}
+
 .form-row {
     display: flex;
     gap: 16px;
@@ -155,15 +238,30 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     flex: 1;
 }
 
+/* Button group styling */
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+form button[type="submit"] {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+
 .help-text {
     color: #68737D;
     font-size: 13px;
     margin-top: 5px;
-}
-
-.button-group {
-    display: flex;
-    gap: 16px;
 }
 
 .results-table {
@@ -186,6 +284,34 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .results-table tr:hover {
     background-color: #F8F9F9;
+}
+
+/* Contract specific styles */
+#contracts-section .results-table td {
+    vertical-align: middle;
+}
+
+#contracts-section .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+#contracts-section .status-badge.active {
+    background-color: #e3fcef;
+    color: #0b875b;
+}
+
+#contracts-section .status-badge.expired {
+    background-color: #fff8e6;
+    color: #b38300;
+}
+
+#contracts-section .status-badge.pending {
+    background-color: #edf2fa;
+    color: #0747a6;
 }
 
 .action-buttons {
@@ -246,26 +372,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .status-message {
-    margin-top: 20px;
-    padding: 10px;
+    margin: 1rem 0;
+    padding: 1rem;
     border-radius: 4px;
-    display: none;
 }
 
 .status-message.success {
-    background-color: #EDF8F4;
-    color: #2E8057;
-    border: 1px solid #2E8057;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
     display: block;
 }
 
 .status-message.error {
-    background-color: #FEEBE9;
-    color: #D93F0B;
-    border: 1px solid #D93F0B;
+    background-color: #fbe9e7;
+    color: #d32f2f;
+    border: 1px solid #ffa4a4;
     display: block;
 }
 
+/* Price fields */
+input[type="number"] {
+    text-align: right;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .form-row {
         flex-direction: column;
@@ -281,6 +412,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         text-align: center;
     }
     
+    .main-nav .nav-container {
+        flex-direction: column;
+    }
+    
+    .main-nav a {
+        width: 100%;
+        text-align: center;
+    }
+    
     .button-group {
         flex-direction: column;
     }
@@ -288,5 +428,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     .results-table {
         display: block;
         overflow-x: auto;
+    }
+    
+    form {
+        grid-template-columns: 1fr;
+    }
+    
+    .section {
+        padding: 1rem;
     }
 }

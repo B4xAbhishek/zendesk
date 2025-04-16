@@ -3,235 +3,515 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entitlement Operations Dashboard</title>
+    <title>Contracts and Entitlements Dashboard</title>
     <link href="//cdn.jsdelivr.net/combine/npm/@zendeskgarden/css-bedrock,npm/@zendeskgarden/css-grid,npm/@zendeskgarden/css-buttons,npm/@zendeskgarden/css-forms,npm/@zendeskgarden/css-utilities" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="navbar-container">
-            <a href="#" id="nav-search" class="active">Search Entitlements</a>
-            <a href="#" id="nav-add">Add Entitlement</a>
-            <a href="#" id="nav-update">Update Entitlement</a>
-            <a href="#" id="nav-delete">Delete Entitlement</a>
+    <!-- Main Navigation -->
+    <div class="main-nav">
+        <div class="nav-container">
+            <a href="#" id="nav-contracts" class="active">Contracts</a>
+            <a href="#" id="nav-entitlements">Entitlements</a>
         </div>
     </div>
-    
-    <div class="container">
-        <!-- Search Entitlements Section -->
-        <div id="search-entitlements" class="section active">
-            <h2>Search Entitlements</h2>
-            <form id="search-form">
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="search-query">Search</label>
-                            <input type="text" class="c-txt__input" id="search-query" placeholder="Search by ID, name, or type">
+
+    <!-- Contracts Section -->
+    <div id="contracts-section" class="main-section active">
+        <!-- Sub Navigation -->
+        <div class="navbar">
+            <div class="navbar-container">
+                <a href="#" id="nav-contract-search" class="active">Search Contracts</a>
+                <a href="#" id="nav-contract-add">Add Contract</a>
+                <a href="#" id="nav-contract-update">Update Contract</a>
+                <a href="#" id="nav-contract-delete">Delete Contract</a>
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- Search Contracts Section -->
+            <div id="search-contracts" class="section active">
+                <h2>Search Contracts</h2>
+                <form id="contract-search-form">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="contract-search-query">Search</label>
+                                <input type="text" class="c-txt__input" id="contract-search-query" placeholder="Search by Number, Name, or Vendor">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="contract-search-status">Status</label>
+                                <select id="contract-search-status" class="c-txt__input">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="search-type">Entitlement Type</label>
-                            <select id="search-type" class="c-txt__input">
-                                <option value="">All Types</option>
-                                <option value="license">License</option>
-                                <option value="subscription">Subscription</option>
-                                <option value="feature">Feature</option>
-                            </select>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="contract-search-start-date">Start Date</label>
+                                <input type="date" id="contract-search-start-date">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="contract-search-end-date">End Date</label>
+                                <input type="date" id="contract-search-end-date">
+                            </div>
                         </div>
                     </div>
+                    </form><br>
+                    <div class="button-group">
+                        <button type="submit" class="c-btn c-btn--primary">Search</button>
+                        <button type="reset" class="c-btn c-btn--secondary">Clear Filters</button>
+                    </div>
+                </form>
+                
+                <div id="contract-search-loading" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading results...</p>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="search-start-date">Start Date</label>
-                            <input type="date" id="search-start-date">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="search-end-date">End Date</label>
-                            <input type="date" id="search-end-date">
-                        </div>
-                    </div>
-                </div>
+                <div id="contract-search-status" class="status-message"></div>
                 
-                <div class="button-group">
-                    <button type="submit" class="c-btn c-btn--primary">Search</button>
-                    <button type="reset" class="c-btn c-btn--secondary">Clear Filters</button>
-                </div>
-            </form>
-            
-            <!-- Loading Spinner -->
-            <div id="search-loading" class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Loading results...</p>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Number</th>
+                            <th>Name</th>
+                            <th>Vendor</th>
+                            <th>Status</th>
+                            <th>End Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contract-search-results"></tbody>
+                </table>
             </div>
             
-            <!-- Status Message -->
-            <div id="search-status" class="status-message"></div>
+            <!-- Add Contract Section -->
+            <div id="add-contract" class="section">
+                <h2>Add Contract</h2>
+                <form id="add-contract-form">
+                    <div class="form-group">
+                        <label for="add-contract-number">Number</label>
+                        <input type="text" id="add-contract-number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-name">Name</label>
+                        <input type="text" id="add-contract-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-vendor">Vendor</label>
+                        <input type="text" id="add-contract-vendor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-reseller">Reseller</label>
+                        <input type="text" id="add-contract-reseller" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-sap-reseller-id">SAP Reseller ID</label>
+                        <input type="text" id="add-sap-reseller-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-end-user">End User</label>
+                        <input type="text" id="add-contract-end-user" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-sap-end-user-id">SAP End User ID</label>
+                        <input type="text" id="add-sap-end-user-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-sales-order">Sales Order</label>
+                        <input type="text" id="add-contract-sales-order" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-status">Status</label>
+                        <select id="add-contract-status" required>
+                            <option value="">Select Status</option>
+                            <option value="active">Active</option>
+                            <option value="expired">Expired</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-start-date">Start Date</label>
+                        <input type="date" id="add-contract-start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-contract-end-date">End Date</label>
+                        <input type="date" id="add-contract-end-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-date-renewed">Date Renewed</label>
+                        <input type="date" id="add-date-renewed">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-date-accuracy">Date Accuracy</label>
+                        <input type="text" id="add-date-accuracy" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-price-usd">Price USD</label>
+                        <input type="number" step="0.01" id="add-price-usd" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-vendor-price-usd">Vendor Price USD</label>
+                        <input type="number" step="0.01" id="add-vendor-price-usd" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-back-contract-po">Back Contract PO</label>
+                        <input type="text" id="add-back-contract-po" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-web-order-id">Web Order ID</label>
+                        <input type="text" id="add-web-order-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-reseller-country">Reseller Country</label>
+                        <input type="text" id="add-reseller-country" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-end-user-country">End User Country</label>
+                        <input type="text" id="add-end-user-country" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-creation-source">Creation Source</label>
+                        <input type="text" id="add-creation-source" required>
+                    </div>
+                    <button type="submit" class="button button-primary">Add Contract</button>
+                </form>
+            </div>
+
+            <!-- Update Contract Section -->
+            <div id="update-contract" class="section">
+                <h2>Update Contract</h2>
+                <form id="update-contract-form">
+                    <div class="form-group">
+                        <label for="update-contract-number">Number</label>
+                        <input type="text" id="update-contract-number" required>
+                    </div>
+                    <button type="submit" class="button button-primary">Update Contract</button>
+                </form>
+            </div>
+
+            <!-- Delete Contract Section -->
+            <div id="delete-contract" class="section">
+                <h2>Delete Contract</h2>
+                <form id="delete-contract-form">
+                    <div class="form-group">
+                        <label for="delete-contract-number">Contract Number</label>
+                        <input type="text" class="c-txt__input" id="delete-contract-number" placeholder="Enter contract number to delete">
+                        <div class="help-text">Enter the contract number you wish to remove</div>
+                    </div>
+                    <button type="submit" class="c-btn c-btn--danger">Delete Contract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entitlements Section -->
+    <div id="entitlements-section" class="main-section">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="navbar-container">
+                <a href="#" id="nav-search" class="active">Search Entitlements</a>
+                <a href="#" id="nav-add">Add Entitlement</a>
+                <a href="#" id="nav-update">Update Entitlement</a>
+                <a href="#" id="nav-delete">Delete Entitlement</a>
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- Search Entitlements Section -->
+            <div id="search-entitlements" class="section active">
+                <h2>Search Entitlements</h2>
+                <form id="search-form">
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="search-query">Search</label>
+                                <input type="text" class="c-txt__input" id="search-query" placeholder="Search by ID, name, or type">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="search-type">Entitlement Type</label>
+                                <select id="search-type" class="c-txt__input">
+                                    <option value="">All Types</option>
+                                    <option value="license">License</option>
+                                    <option value="subscription">Subscription</option>
+                                    <option value="feature">Feature</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="search-start-date">Start Date</label>
+                                <input type="date" id="search-start-date">
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="search-end-date">End Date</label>
+                                <input type="date" id="search-end-date">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="c-btn c-btn--primary">Search</button>
+                        <button type="reset" class="c-btn c-btn--secondary">Clear Filters</button>
+                    </div>
+                </form>
+                
+                <!-- Loading Spinner -->
+                <div id="search-loading" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading results...</p>
+                </div>
+                
+                <!-- Status Message -->
+                <div id="search-status" class="status-message"></div>
+                
+                <!-- Search Results Table -->
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Expiration</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="search-results">
+                    </tbody>
+                </table>
+            </div>
             
-            <!-- Search Results Table -->
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Value</th>
-                        <th>Expiration</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="search-results">
-                    <!-- Sample data for demonstration -->
-                    <tr>
-                        <td>ENT-001</td>
-                        <td>Basic License</td>
-                        <td>License</td>
-                        <td>Standard</td>
-                        <td>09-15-2025</td>
-                        <td class="action-buttons">
-                            <button class="action-button action-button--edit">Edit</button>
-                            <button class="action-button action-button--delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>ENT-002</td>
-                        <td>Pro Subscription</td>
-                        <td>Subscription</td>
-                        <td>Premium</td>
-                        <td>01-20-2026</td>
-                        <td class="action-buttons">
-                            <button class="action-button action-button--edit">Edit</button>
-                            <button class="action-button action-button--delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>ENT-003</td>
-                        <td>API Access</td>
-                        <td>Feature</td>
-                        <td>Enabled</td>
-                        <td>12-31-2025</td>
-                        <td class="action-buttons">
-                            <button class="action-button action-button--edit">Edit</button>
-                            <button class="action-button action-button--delete">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Add Entitlement Section -->
-        <div id="add-entitlement" class="section">
-            <h2>Add New Entitlement</h2>
-            <form>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="add-entitlement-name">Entitlement Name</label>
-                            <input type="text" class="c-txt__input" id="add-entitlement-name" placeholder="Enter entitlement name">
-                            <div class="help-text">Provide a unique name for this entitlement</div>
-                        </div>
+            <!-- Add Entitlement Section -->
+            <div id="add-entitlement" class="section">
+                <h2>Add Entitlement</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="add-ent-id">EntID:</label>
+                        <input type="text" id="add-ent-id" required>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="add-entitlement-type">Entitlement Type</label>
-                            <select id="add-entitlement-type" class="c-txt__input">
-                                <option value="">Select a type</option>
-                                <option value="license">License</option>
-                                <option value="subscription">Subscription</option>
-                                <option value="feature">Feature</option>
-                            </select>
-                            <div class="help-text">Select the type of entitlement</div>
-                        </div>
+                    <div class="form-group">
+                        <label for="add-contract-id">Contract ID:</label>
+                        <input type="text" id="add-contract-id" required>
                     </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="add-entitlement-value">Entitlement Value</label>
-                            <input type="text" class="c-txt__input" id="add-entitlement-value" placeholder="Enter entitlement value">
-                            <div class="help-text">Quantifiable value or permission level</div>
-                        </div>
+                    <div class="form-group">
+                        <label for="add-project">Project:</label>
+                        <input type="text" id="add-project" required>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="add-expiration-date">Expiration Date</label>
-                            <input type="date" id="add-expiration-date">
-                            <div class="help-text">When this entitlement will expire</div>
-                        </div>
+                    <div class="form-group">
+                        <label for="add-ast">AST #:</label>
+                        <input type="text" id="add-ast" required>
                     </div>
-                </div>
-                
-                <button type="submit" class="c-btn c-btn--primary">Submit Entitlement</button>
-            </form>
-        </div>
-        
-        <!-- Update Entitlement Section -->
-        <div id="update-entitlement" class="section">
-            <h2>Update Entitlement</h2>
-            <form>
-                <div class="form-group">
-                    <label for="update-entitlement-id">Entitlement ID</label>
-                    <input type="text" class="c-txt__input" id="update-entitlement-id" placeholder="Enter entitlement ID to update">
-                    <div class="help-text">Enter the unique identifier of the entitlement you wish to modify</div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="update-entitlement-name">Entitlement Name</label>
-                            <input type="text" class="c-txt__input" id="update-entitlement-name" placeholder="Enter new entitlement name">
-                        </div>
+                    <div class="form-group">
+                        <label for="add-sn-mac">SN/MAC:</label>
+                        <input type="text" id="add-sn-mac" required>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="update-entitlement-type">Entitlement Type</label>
-                            <select id="update-entitlement-type" class="c-txt__input">
-                                <option value="">Select a type</option>
-                                <option value="license">License</option>
-                                <option value="subscription">Subscription</option>
-                                <option value="feature">Feature</option>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label for="add-entitlement-data">Entitlement Data:</label>
+                        <input type="text" id="add-entitlement-data" required>
                     </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="update-entitlement-value">Entitlement Value</label>
-                            <input type="text" class="c-txt__input" id="update-entitlement-value" placeholder="Enter new entitlement value">
-                        </div>
+                    <div class="form-group">
+                        <label for="add-entitlement-type">Entitlement Type:</label>
+                        <input type="text" id="add-entitlement-type" required>
                     </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="update-expiration-date">Expiration Date</label>
-                            <input type="date" id="update-expiration-date">
-                        </div>
+                    <div class="form-group">
+                        <label for="add-reseller">Reseller:</label>
+                        <input type="text" id="add-reseller" required>
                     </div>
-                </div>
-                
-                <button type="submit" class="c-btn c-btn--primary">Update Entitlement</button>
-            </form>
-        </div>
-        
-        <!-- Delete Entitlement Section -->
-        <div id="delete-entitlement" class="section">
-            <h2>Delete Entitlement</h2>
-            <form>
-                <div class="form-group">
-                    <label for="delete-entitlement-id">Entitlement ID</label>
-                    <input type="text" class="c-txt__input" id="delete-entitlement-id" placeholder="Enter entitlement ID to delete">
-                    <div class="help-text">Enter the unique identifier of the entitlement you wish to remove</div>
-                </div>
-                
-                <button type="submit" class="c-btn c-btn--danger">Delete Entitlement</button>
-            </form>
+                    <div class="form-group">
+                        <label for="add-end-user">End User:</label>
+                        <input type="text" id="add-end-user" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-sales-order">Sales Order:</label>
+                        <input type="text" id="add-sales-order" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-current-period">Current Period:</label>
+                        <input type="text" id="add-current-period" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-start-date">Start Date:</label>
+                        <input type="date" id="add-start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-expiration-date">Expiration Date:</label>
+                        <input type="date" id="add-expiration-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-vendor">Vendor:</label>
+                        <input type="text" id="add-vendor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-product-sku">Product SKU:</label>
+                        <input type="text" id="add-product-sku" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-installation-date">Installation Date:</label>
+                        <input type="date" id="add-installation-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-eol-date">End of Life Date:</label>
+                        <input type="date" id="add-eol-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-eos-date">End of Service Date:</label>
+                        <input type="date" id="add-eos-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-sku-replaced">Product SKU Replaced By:</label>
+                        <input type="text" id="add-sku-replaced">
+                    </div>
+                    <div class="form-group">
+                        <label for="add-serial-number">Serial Number:</label>
+                        <input type="text" id="add-serial-number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-quote-ref">Quote Ref:</label>
+                        <input type="text" id="add-quote-ref" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-svo">SVO:</label>
+                        <input type="text" id="add-svo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="add-internal-po">Internal PO:</label>
+                        <input type="text" id="add-internal-po" required>
+                    </div>
+                    <button type="submit" class="button button-primary">Add Entitlement</button>
+                </form>
+            </div>
+            
+            <!-- Update Entitlement Section -->
+            <div id="update-entitlement" class="section">
+                <h2>Update Entitlement</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="update-ent-id">EntID:</label>
+                        <input type="text" id="update-ent-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-contract-id">Contract ID:</label>
+                        <input type="text" id="update-contract-id" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-project">Project:</label>
+                        <input type="text" id="update-project" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-ast">AST #:</label>
+                        <input type="text" id="update-ast" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-sn-mac">SN/MAC:</label>
+                        <input type="text" id="update-sn-mac" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-entitlement-data">Entitlement Data:</label>
+                        <input type="text" id="update-entitlement-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-entitlement-type">Entitlement Type:</label>
+                        <input type="text" id="update-entitlement-type" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-reseller">Reseller:</label>
+                        <input type="text" id="update-reseller" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-end-user">End User:</label>
+                        <input type="text" id="update-end-user" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-sales-order">Sales Order:</label>
+                        <input type="text" id="update-sales-order" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-current-period">Current Period:</label>
+                        <input type="text" id="update-current-period" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-start-date">Start Date:</label>
+                        <input type="date" id="update-start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-expiration-date">Expiration Date:</label>
+                        <input type="date" id="update-expiration-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-vendor">Vendor:</label>
+                        <input type="text" id="update-vendor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-product-sku">Product SKU:</label>
+                        <input type="text" id="update-product-sku" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-installation-date">Installation Date:</label>
+                        <input type="date" id="update-installation-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-eol-date">End of Life Date:</label>
+                        <input type="date" id="update-eol-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-eos-date">End of Service Date:</label>
+                        <input type="date" id="update-eos-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-sku-replaced">Product SKU Replaced By:</label>
+                        <input type="text" id="update-sku-replaced">
+                    </div>
+                    <div class="form-group">
+                        <label for="update-serial-number">Serial Number:</label>
+                        <input type="text" id="update-serial-number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-quote-ref">Quote Ref:</label>
+                        <input type="text" id="update-quote-ref" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-svo">SVO:</label>
+                        <input type="text" id="update-svo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="update-internal-po">Internal PO:</label>
+                        <input type="text" id="update-internal-po" required>
+                    </div>
+                    <button type="submit" class="button button-primary">Update Entitlement</button>
+                </form>
+            </div>
+            
+            <!-- Delete Entitlement Section -->
+            <div id="delete-entitlement" class="section">
+                <h2>Delete Entitlement</h2>
+                <form>
+                    <div class="form-group">
+                        <label for="delete-entitlement-id">Entitlement ID</label>
+                        <input type="text" class="c-txt__input" id="delete-entitlement-id" placeholder="Enter entitlement ID to delete">
+                        <div class="help-text">Enter the unique identifier of the entitlement you wish to remove</div>
+                    </div>
+                    
+                    <button type="submit" class="c-btn c-btn--danger">Delete Entitlement</button>
+                </form>
+            </div>
         </div>
     </div>
     
