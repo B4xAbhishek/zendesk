@@ -1,3 +1,81 @@
+// Zendesk API helper functions
+const ZendeskAPI = {
+    client: null,
+    CONFIG: {
+        API_BASE_URL: '/api/v2',
+        CUSTOM_OBJECT_ENDPOINT: '/custom_objects'
+    },
+
+    init() {
+        if (!this.client) {
+            this.client = ZAFClient.init();
+        }
+        return this.client;
+    },
+
+    async searchEntitlements(searchParams) {
+        const client = this.init();
+        const apiUrl = `${this.CONFIG.API_BASE_URL}${this.CONFIG.CUSTOM_OBJECT_ENDPOINT}`;
+        
+        return await client.request({
+            url: apiUrl,
+            type: 'GET',
+            dataType: 'json'
+        });
+    },
+
+    async addEntitlement(entitlementData) {
+        const client = this.init();
+        const apiUrl = `${this.CONFIG.API_BASE_URL}${this.CONFIG.CUSTOM_OBJECT_ENDPOINT}`;
+        
+        return await client.request({
+            url: apiUrl,
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify({
+                "custom_object": {
+                    "key": entitlementData.name,
+                    "title": entitlementData.name,
+                    "type": entitlementData.type,
+                    "value": entitlementData.value,
+                    "expiration_date": entitlementData.expirationDate
+                }
+            })
+        });
+    },
+
+    async updateEntitlement(updateData) {
+        const client = this.init();
+        const apiUrl = `${this.CONFIG.API_BASE_URL}${this.CONFIG.CUSTOM_OBJECT_ENDPOINT}/${updateData.id}`;
+        
+        return await client.request({
+            url: apiUrl,
+            type: 'PUT',
+            dataType: 'json',
+            data: JSON.stringify({
+                "custom_object": {
+                    "key": updateData.name,
+                    "title": updateData.name,
+                    "type": updateData.type,
+                    "value": updateData.value,
+                    "expiration_date": updateData.expirationDate
+                }
+            })
+        });
+    },
+
+    async deleteEntitlement(id) {
+        const client = this.init();
+        const apiUrl = `${this.CONFIG.API_BASE_URL}${this.CONFIG.CUSTOM_OBJECT_ENDPOINT}/${id}`;
+        
+        return await client.request({
+            url: apiUrl,
+            type: 'DELETE',
+            dataType: 'json'
+        });
+    }
+};
+
 // Navigation functionality
 document.getElementById('nav-search').addEventListener('click', function(e) {
     e.preventDefault();
@@ -20,7 +98,7 @@ document.getElementById('nav-delete').addEventListener('click', function(e) {
 });
 
 // Form submission handlers
-// Update search form handler
+// Search form handler
 document.getElementById('search-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -39,24 +117,8 @@ document.getElementById('search-form').addEventListener('submit', async function
             endDate: document.getElementById('search-end-date').value
         };
 
-        // Initialize ZAF client
-        const client = ZAFClient.init();
-
-        // Configuration (simplified since we're using ZAF client authentication)
-        const CONFIG = {
-            API_BASE_URL: '/api/v2',
-            CUSTOM_OBJECT_ENDPOINT: '/custom_objects'
-        };
-        const apiUrl = `${CONFIG.API_BASE_URL}${CONFIG.CUSTOM_OBJECT_ENDPOINT}`;
-
-        // Make authenticated request through ZAF client
-        const result = await client.request({
-            url: apiUrl,
-            type: 'GET',
-            dataType: 'json'
-        });
-
-        console.log('13', result);
+        const result = await ZendeskAPI.searchEntitlements(searchParams);
+        console.log('Search results:', result);
 
         // Update results table
         const resultsBody = document.getElementById('search-results');
@@ -75,7 +137,7 @@ document.getElementById('search-form').addEventListener('submit', async function
         `).join('');
 
         // Update status
-        if (result.length === 0) {
+        if (result.custom_objects.length === 0) {
             statusElement.textContent = 'No matching entitlements found';
             statusElement.classList.add('error');
         }
@@ -99,26 +161,14 @@ document.querySelector('#add-entitlement form').addEventListener('submit', async
         expirationDate: document.getElementById('add-expiration-date').value
     };
     
-    const client = ZAFClient.init();
-    const CONFIG = {
-        API_BASE_URL: '/api/v2',
-        CUSTOM_OBJECT_ENDPOINT: '/custom_objects'
-    };
-    const apiUrl = `${CONFIG.API_BASE_URL}${CONFIG.CUSTOM_OBJECT_ENDPOINT}`;
-
-    // Make authenticated request through ZAF client
-    const result = await client.request({
-        url: apiUrl,
-        type: 'POST',
-        dataType: 'json',
-        data: JSON.stringify({
-            "custom_object": {
-                "key": "apartment",
-                "title": "Apartment",
-                "title_pluralized": "Apartments"
-            }
-        })
-    });
+    try {
+        const result = await ZendeskAPI.addEntitlement(addData);
+        console.log('Add result:', result);
+        // Add success handling here
+    } catch (error) {
+        console.error('Add failed:', error);
+        // Add error handling here
+    }
 });
 
 // Update entitlement form handler
@@ -132,26 +182,14 @@ document.querySelector('#update-entitlement form').addEventListener('submit', as
         expirationDate: document.getElementById('update-expiration-date').value
     };
     
-    const client = ZAFClient.init();
-    const CONFIG = {
-        API_BASE_URL: '/api/v2',
-        CUSTOM_OBJECT_ENDPOINT: '/custom_objects'
-    };
-    const apiUrl = `${CONFIG.API_BASE_URL}${CONFIG.CUSTOM_OBJECT_ENDPOINT}`;
-
-    // Make authenticated request through ZAF client
-    const result = await client.request({
-        url: apiUrl,
-        type: 'PUT',
-        dataType: 'json',
-        data: JSON.stringify({
-            "custom_object": {
-                "key": "apartment",
-                "title": "Apartment",
-                "title_pluralized": "Apartments"
-            }
-        })
-    });
+    try {
+        const result = await ZendeskAPI.updateEntitlement(updateData);
+        console.log('Update result:', result);
+        // Add success handling here
+    } catch (error) {
+        console.error('Update failed:', error);
+        // Add error handling here
+    }
 });
 
 // Delete entitlement form handler
@@ -159,26 +197,14 @@ document.querySelector('#delete-entitlement form').addEventListener('submit', as
     e.preventDefault();
     const id = document.getElementById('delete-entitlement-id').value;
     
-    const client = ZAFClient.init();
-    const CONFIG = {
-        API_BASE_URL: '/api/v2',
-        CUSTOM_OBJECT_ENDPOINT: '/custom_objects'
-    };
-    const apiUrl = `${CONFIG.API_BASE_URL}${CONFIG.CUSTOM_OBJECT_ENDPOINT}`;
-
-    // Make authenticated request through ZAF client
-    const result = await client.request({
-        url: apiUrl,
-        type: 'DELETE',
-        dataType: 'json',
-        data: JSON.stringify({
-            "custom_object": {
-                "key": "apartment",
-                "title": "Apartment",
-                "title_pluralized": "Apartments"
-            }
-        })
-    });
+    try {
+        const result = await ZendeskAPI.deleteEntitlement(id);
+        console.log('Delete result:', result);
+        // Add success handling here
+    } catch (error) {
+        console.error('Delete failed:', error);
+        // Add error handling here
+    }
 });
 
 function activateTab(sectionId, navId) {
