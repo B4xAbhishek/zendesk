@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entitlement Operations Dashboard</title>
+    <link href="//cdn.jsdelivr.net/combine/npm/@zendeskgarden/css-bedrock,npm/@zendeskgarden/css-grid,npm/@zendeskgarden/css-buttons,npm/@zendeskgarden/css-forms,npm/@zendeskgarden/css-utilities" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-container">
+            <a href="#" id="nav-search" class="active">Search Entitlements</a>
+            <a href="#" id="nav-add">Add Entitlement</a>
+            <a href="#" id="nav-update">Update Entitlement</a>
+            <a href="#" id="nav-delete">Delete Entitlement</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Search Entitlements Section -->
+        <div id="search-entitlements" class="section active">
+            <h2>Search Entitlements</h2>
+            <form id="search-form">
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="search-query">Search</label>
+                            <input type="text" class="c-txt__input" id="search-query" placeholder="Search by ID, name, or type">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="search-type">Entitlement Type</label>
+                            <select id="search-type" class="c-txt__input">
+                                <option value="">All Types</option>
+                                <option value="license">License</option>
+                                <option value="subscription">Subscription</option>
+                                <option value="feature">Feature</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="search-start-date">Start Date</label>
+                            <input type="date" id="search-start-date">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="search-end-date">End Date</label>
+                            <input type="date" id="search-end-date">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="c-btn c-btn--primary">Search</button>
+                    <button type="reset" class="c-btn c-btn--secondary">Clear Filters</button>
+                </div>
+            </form>
+            
+            <!-- Loading Spinner -->
+            <div id="search-loading" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading results...</p>
+            </div>
+            
+            <!-- Status Message -->
+            <div id="search-status" class="status-message"></div>
+            
+            <!-- Search Results Table -->
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Expiration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="search-results">
+                    <!-- Sample data for demonstration -->
+                    <tr>
+                        <td>ENT-001</td>
+                        <td>Basic License</td>
+                        <td>License</td>
+                        <td>Standard</td>
+                        <td>09-15-2025</td>
+                        <td class="action-buttons">
+                            <button class="action-button action-button--edit">Edit</button>
+                            <button class="action-button action-button--delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>ENT-002</td>
+                        <td>Pro Subscription</td>
+                        <td>Subscription</td>
+                        <td>Premium</td>
+                        <td>01-20-2026</td>
+                        <td class="action-buttons">
+                            <button class="action-button action-button--edit">Edit</button>
+                            <button class="action-button action-button--delete">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>ENT-003</td>
+                        <td>API Access</td>
+                        <td>Feature</td>
+                        <td>Enabled</td>
+                        <td>12-31-2025</td>
+                        <td class="action-buttons">
+                            <button class="action-button action-button--edit">Edit</button>
+                            <button class="action-button action-button--delete">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Add Entitlement Section -->
+        <div id="add-entitlement" class="section">
+            <h2>Add New Entitlement</h2>
+            <form>
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="add-entitlement-name">Entitlement Name</label>
+                            <input type="text" class="c-txt__input" id="add-entitlement-name" placeholder="Enter entitlement name">
+                            <div class="help-text">Provide a unique name for this entitlement</div>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="add-entitlement-type">Entitlement Type</label>
+                            <select id="add-entitlement-type" class="c-txt__input">
+                                <option value="">Select a type</option>
+                                <option value="license">License</option>
+                                <option value="subscription">Subscription</option>
+                                <option value="feature">Feature</option>
+                            </select>
+                            <div class="help-text">Select the type of entitlement</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="add-entitlement-value">Entitlement Value</label>
+                            <input type="text" class="c-txt__input" id="add-entitlement-value" placeholder="Enter entitlement value">
+                            <div class="help-text">Quantifiable value or permission level</div>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="add-expiration-date">Expiration Date</label>
+                            <input type="date" id="add-expiration-date">
+                            <div class="help-text">When this entitlement will expire</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="c-btn c-btn--primary">Submit Entitlement</button>
+            </form>
+        </div>
+        
+        <!-- Update Entitlement Section -->
+        <div id="update-entitlement" class="section">
+            <h2>Update Entitlement</h2>
+            <form>
+                <div class="form-group">
+                    <label for="update-entitlement-id">Entitlement ID</label>
+                    <input type="text" class="c-txt__input" id="update-entitlement-id" placeholder="Enter entitlement ID to update">
+                    <div class="help-text">Enter the unique identifier of the entitlement you wish to modify</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="update-entitlement-name">Entitlement Name</label>
+                            <input type="text" class="c-txt__input" id="update-entitlement-name" placeholder="Enter new entitlement name">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="update-entitlement-type">Entitlement Type</label>
+                            <select id="update-entitlement-type" class="c-txt__input">
+                                <option value="">Select a type</option>
+                                <option value="license">License</option>
+                                <option value="subscription">Subscription</option>
+                                <option value="feature">Feature</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="update-entitlement-value">Entitlement Value</label>
+                            <input type="text" class="c-txt__input" id="update-entitlement-value" placeholder="Enter new entitlement value">
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="update-expiration-date">Expiration Date</label>
+                            <input type="date" id="update-expiration-date">
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="c-btn c-btn--primary">Update Entitlement</button>
+            </form>
+        </div>
+        
+        <!-- Delete Entitlement Section -->
+        <div id="delete-entitlement" class="section">
+            <h2>Delete Entitlement</h2>
+            <form>
+                <div class="form-group">
+                    <label for="delete-entitlement-id">Entitlement ID</label>
+                    <input type="text" class="c-txt__input" id="delete-entitlement-id" placeholder="Enter entitlement ID to delete">
+                    <div class="help-text">Enter the unique identifier of the entitlement you wish to remove</div>
+                </div>
+                
+                <button type="submit" class="c-btn c-btn--danger">Delete Entitlement</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
+
