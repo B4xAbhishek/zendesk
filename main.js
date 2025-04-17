@@ -259,9 +259,23 @@ document.getElementById('contract-search-form').addEventListener('submit', async
         const resultsBody = document.getElementById('contract-search-results');
         resultsBody.innerHTML = '';
 
-        if (result.contracts && result.contracts.length === 0) {
+        if (result.contracts && result.contracts.length > 0) {
+            resultsBody.innerHTML = result.contracts.map(contract => `
+                <tr>
+                    <td>${contract.number}</td>
+                    <td>${contract.name}</td>
+                    <td>${contract.vendor}</td>
+                    <td>${contract.status}</td>
+                    <td>${new Date(contract.endDate).toLocaleDateString()}</td>
+                    <td class="action-buttons">
+                        <button class="action-button action-button--edit">Edit</button>
+                        <button class="action-button action-button--delete">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
             statusElement.textContent = 'No matching contracts found';
-            statusElement.classList.add('error');
+            statusElement.classList.add('info');
         }
 
     } catch (error) {
@@ -533,41 +547,84 @@ document.getElementById('search-form').addEventListener('submit', async function
 // Add entitlement form handler
 document.querySelector('#add-entitlement form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const addData = {
-        name: document.getElementById('add-entitlement-name').value,
-        type: document.getElementById('add-entitlement-type').value,
-        value: document.getElementById('add-entitlement-value').value,
-        expirationDate: document.getElementById('add-expiration-date').value
-    };
     
     try {
-        const result = await ZendeskAPI.addEntitlement(addData);
-        console.log('Add result:', result);
-        // Add success handling here
+        const entitlementData = {
+            entId: document.getElementById('add-ent-id').value,
+            contractId: document.getElementById('add-contract-id').value,
+            project: document.getElementById('add-project').value,
+            astNumber: document.getElementById('add-ast').value,
+            snMac: document.getElementById('add-sn-mac').value,
+            entitlementData: document.getElementById('add-entitlement-data').value,
+            entitlementType: document.getElementById('add-entitlement-type').value,
+            reseller: document.getElementById('add-reseller').value,
+            endUser: document.getElementById('add-end-user').value,
+            salesOrder: document.getElementById('add-sales-order').value,
+            currentPeriod: document.getElementById('add-current-period').value,
+            startDate: document.getElementById('add-start-date').value,
+            expirationDate: document.getElementById('add-expiration-date').value,
+            vendor: document.getElementById('add-vendor').value,
+            productSku: document.getElementById('add-product-sku').value,
+            installationDate: document.getElementById('add-installation-date').value,
+            endOfLifeDate: document.getElementById('add-eol-date').value,
+            endOfServiceDate: document.getElementById('add-eos-date').value,
+            productSkuReplacedBy: document.getElementById('add-sku-replaced').value,
+            serialNumber: document.getElementById('add-serial-number').value,
+            quoteRef: document.getElementById('add-quote-ref').value,
+            svo: document.getElementById('add-svo').value,
+            internalPo: document.getElementById('add-internal-po').value
+        };
+
+        const result = await ZendeskAPI.addEntitlement(entitlementData);
+        console.log('Entitlement added:', result);
+        showStatusMessage('Entitlement added successfully!', 'success');
+        this.reset();
+        
     } catch (error) {
-        console.error('Add failed:', error);
-        // Add error handling here
+        console.error('Add entitlement failed:', error);
+        showStatusMessage(`Error adding entitlement: ${error.message}`, 'error');
     }
 });
 
 // Update entitlement form handler
 document.querySelector('#update-entitlement form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const updateData = {
-        id: document.getElementById('update-entitlement-id').value,
-        name: document.getElementById('update-entitlement-name').value,
-        type: document.getElementById('update-entitlement-type').value,
-        value: document.getElementById('update-entitlement-value').value,
-        expirationDate: document.getElementById('update-expiration-date').value
-    };
     
     try {
+        const updateData = {
+            id: document.getElementById('update-ent-id').value,
+            entId: document.getElementById('update-ent-id').value,
+            contractId: document.getElementById('update-contract-id').value,
+            project: document.getElementById('update-project').value,
+            astNumber: document.getElementById('update-ast').value,
+            snMac: document.getElementById('update-sn-mac').value,
+            entitlementData: document.getElementById('update-entitlement-data').value,
+            entitlementType: document.getElementById('update-entitlement-type').value,
+            reseller: document.getElementById('update-reseller').value,
+            endUser: document.getElementById('update-end-user').value,
+            salesOrder: document.getElementById('update-sales-order').value,
+            currentPeriod: document.getElementById('update-current-period').value,
+            startDate: document.getElementById('update-start-date').value,
+            expirationDate: document.getElementById('update-expiration-date').value,
+            vendor: document.getElementById('update-vendor').value,
+            productSku: document.getElementById('update-product-sku').value,
+            installationDate: document.getElementById('update-installation-date').value,
+            endOfLifeDate: document.getElementById('update-eol-date').value,
+            endOfServiceDate: document.getElementById('update-eos-date').value,
+            productSkuReplacedBy: document.getElementById('update-sku-replaced').value,
+            serialNumber: document.getElementById('update-serial-number').value,
+            quoteRef: document.getElementById('update-quote-ref').value,
+            svo: document.getElementById('update-svo').value,
+            internalPo: document.getElementById('update-internal-po').value
+        };
+
         const result = await ZendeskAPI.updateEntitlement(updateData);
-        console.log('Update result:', result);
-        // Add success handling here
+        console.log('Entitlement updated:', result);
+        showStatusMessage('Entitlement updated successfully!', 'success');
+        
     } catch (error) {
-        console.error('Update failed:', error);
-        // Add error handling here
+        console.error('Update entitlement failed:', error);
+        showStatusMessage(`Error updating entitlement: ${error.message}`, 'error');
     }
 });
 
