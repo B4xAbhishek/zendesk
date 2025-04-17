@@ -250,7 +250,7 @@ document.getElementById('contract-search-form').addEventListener('submit', async
     try {
         const searchParams = {
             query: document.getElementById('contract-search-query').value.toLowerCase(),
-            status: document.getElementById('contract-search-status').value,
+            status: document.getElementById('contract-search-status-select').value,
             startDate: document.getElementById('contract-search-start-date').value,
             endDate: document.getElementById('contract-search-end-date').value
         };
@@ -259,20 +259,22 @@ document.getElementById('contract-search-form').addEventListener('submit', async
         const resultsBody = document.getElementById('contract-search-results');
         resultsBody.innerHTML = '';
 
-        if (result.contracts && result.contracts.length > 0) {
-            resultsBody.innerHTML = result.contracts.map(contract => `
-                <tr>
-                    <td>${contract.number}</td>
-                    <td>${contract.name}</td>
-                    <td>${contract.vendor}</td>
-                    <td>${contract.status}</td>
-                    <td>${new Date(contract.endDate).toLocaleDateString()}</td>
+        if (result && result.contracts && result.contracts.length > 0) {
+            result.contracts.forEach(contract => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${contract.number || '-'}</td>
+                    <td>${contract.name || '-'}</td>
+                    <td>${contract.vendor || '-'}</td>
+                    <td>${contract.status || '-'}</td>
+                    <td>${contract.endDate ? new Date(contract.endDate).toLocaleDateString() : '-'}</td>
                     <td class="action-buttons">
-                        <button class="action-button action-button--edit">Edit</button>
-                        <button class="action-button action-button--delete">Delete</button>
+                        <button class="action-button action-button--edit" data-contract="${contract.number}">Edit</button>
+                        <button class="action-button action-button--delete" data-contract="${contract.number}">Delete</button>
                     </td>
-                </tr>
-            `).join('');
+                `;
+                resultsBody.appendChild(row);
+            });
         } else {
             statusElement.textContent = 'No matching contracts found';
             statusElement.classList.add('info');
@@ -371,20 +373,44 @@ document.getElementById('update-contract-form').addEventListener('submit', async
 document.getElementById('delete-contract-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const contractNumber = document.getElementById('delete-contract-number').value;
+    const contractNumber = document.getElementById('delete-contract-number').value.trim();
+    const statusElement = document.getElementById('delete-contract-status');
+    const loadingElement = document.getElementById('delete-contract-loading');
     
-    if (!confirm('Are you sure you want to delete this contract? This action cannot be undone.')) {
+    if (!contractNumber) {
+        statusElement.textContent = 'Please enter a contract number';
+        statusElement.className = 'status-message error';
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete contract ${contractNumber}? This action cannot be undone.`)) {
         return;
     }
     
     try {
+        loadingElement.classList.add('active');
+        statusElement.className = 'status-message';
+        statusElement.textContent = '';
+        
         await ZendeskAPI.deleteContract(contractNumber);
-        showStatusMessage('Contract deleted successfully!', 'success');
-        document.getElementById('delete-contract-number').value = '';
+        
+        // Clear the form and show success message
+        this.reset();
+        statusElement.textContent = 'Contract deleted successfully!';
+        statusElement.classList.add('success');
+        
+        // Refresh search results if they're visible
+        const searchForm = document.getElementById('contract-search-form');
+        if (searchForm && document.getElementById('search-contracts').classList.contains('active')) {
+            searchForm.dispatchEvent(new Event('submit'));
+        }
         
     } catch (error) {
         console.error('Delete contract failed:', error);
-        showStatusMessage(`Error deleting contract: ${error.message}`, 'error');
+        statusElement.textContent = `Error deleting contract: ${error.message}`;
+        statusElement.classList.add('error');
+    } finally {
+        loadingElement.classList.remove('active');
     }
 });
 
