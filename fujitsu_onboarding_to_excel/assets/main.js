@@ -17,49 +17,98 @@ let settings = {
 };
 
 document.getElementById('exportBtn').addEventListener('click', async function () {
-  console.log('20 allTickets', allTickets)
-  if (allTickets.length === 0) {
-    alert('No tickets to export!');
+  const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+  
+  if (checkedBoxes.length === 0) {
+    alert('Please select at least one ticket to export!');
     return;
   }
 
   showLoader();
   try {
-    const ticketsData = [];
+    // Get checked tickets
+    const checkedTickets = Array.from(checkedBoxes).map(checkbox => 
+      allTickets.find(ticket => ticket.id.toString() === checkbox.dataset.ticketId)
+    ).filter(Boolean);
 
-    for (const ticket of allTickets) {
+    // Create a workbook
+    const workbook = XLSX.utils.book_new();
+
+    // Process each ticket into its own worksheet
+    for (const ticket of checkedTickets) {
+      const sheetData = [];
+      
       // Get requester and organization names
       const requesterName = await fetchUserName(ticket.requester_id);
       const orgName = ticket.organization_id ? await fetchOrgName(ticket.organization_id) : 'N/A';
 
-      // Create base row with system fields
-      const row = {
-        'Ticket ID': ticket.id,
-        'Subject': ticket.subject,
-        'Status': ticket.status,
-        'Requester': requesterName,
-        'Organization': orgName,
-        'Created At': new Date(ticket.created_at).toLocaleString(),
-        'Updated At': new Date(ticket.updated_at).toLocaleString()
-      };
+      // Add system fields
+      sheetData.push(
+        ['Ticket ID', ticket.id],
+        ['Subject', ticket.subject],
+        ['Status', ticket.status],
+        ['Requester', requesterName],
+        ['Organization', orgName],
+        ['Created At', new Date(ticket.created_at).toLocaleString()],
+        ['Updated At', new Date(ticket.updated_at).toLocaleString()],
+        [] // Empty row for spacing
+      );
 
-      // Add custom form fields, sorted by their titles
-      formFields.forEach(field => {
-        // Skip system fields already included
-        if (['subject', 'status', 'priority', 'assignee'].includes(field.key)) return;
+      // Add custom form fields
+      for (const field of formFields) {
+        // Skip system fields
+        if (['subject', 'status', 'priority', 'assignee'].includes(field.key)) continue;
 
         const value = getFormattedFieldValue(ticket, field);
-        row[field.title] = value;
-      });
+        
+        // Check if field title starts with special format (e.g., fj_b2_)
+        const fieldTitle = field.title;
+        const cellRef = fieldTitle.match(/^fj_([a-z0-9]+)_/i);
+        
+        if (cellRef) {
+          // Extract the cell reference and the actual field name
+          const [, cellLocation] = cellRef;
+          const actualFieldName = fieldTitle.replace(/^fj_[a-z0-9]+_/i, '');
+          sheetData.push([`${cellLocation.toUpperCase()} - ${actualFieldName}`, value]);
+        } else {
+          sheetData.push([fieldTitle, value]);
+        }
+      }
 
-      ticketsData.push(row);
+      // Create worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+      // Auto-size columns
+      const maxLen = Math.max(...sheetData.map(row => row[0]?.toString().length || 0));
+      worksheet['!cols'] = [{ wch: maxLen + 2 }, { wch: 50 }];
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, `Ticket ${ticket.id}`);
     }
 
-    // Create worksheet and export
-    const worksheet = XLSX.utils.json_to_sheet(ticketsData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Onboarding Tickets");
+    // Save workbook
     XLSX.writeFile(workbook, "Fujitsu_Onboarding_Tickets.xlsx");
+
+    // Remove fujitsu_onboarding tag from exported tickets
+    for (const ticket of checkedTickets) {
+      try {
+        const response = await client.request({
+          url: `/api/v2/tickets/${ticket.id}.json`,
+          type: 'PUT',
+          data: {
+            ticket: {
+              tags: ticket.tags.filter(tag => tag !== 'fujitsu_onboarding')
+            }
+          }
+        });
+        console.log(`Removed fujitsu_onboarding tag from ticket ${ticket.id}`);
+      } catch (error) {
+        console.error(`Failed to remove tag from ticket ${ticket.id}:`, error);
+      }
+    }
+
+    // Refresh the ticket list
+    await searchOnboardingTickets();
 
   } catch (error) {
     console.error('Export error:', error);
@@ -68,6 +117,7 @@ document.getElementById('exportBtn').addEventListener('click', async function ()
     hideLoader();
   }
 });
+
 function showLoader() {
   document.getElementById('loader').style.display = 'block';
   document.getElementById('ticketList').innerHTML = '';
@@ -355,6 +405,16 @@ async function displayTickets(tickets) {
     
     const ticketCard = document.createElement('div');
     ticketCard.className = 'ticket-card';
+
+    // Add checkbox
+    const checkboxDiv = document.createElement('div');
+    checkboxDiv.className = 'ticket-checkbox';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `ticket-${ticket.id}`;
+    checkbox.dataset.ticketId = ticket.id;
+    checkboxDiv.appendChild(checkbox);
+    ticketCard.appendChild(checkboxDiv);
     
     // Create ticket ID with link
     const ticketIdElement = document.createElement('a');

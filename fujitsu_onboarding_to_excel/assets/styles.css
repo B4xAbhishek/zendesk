@@ -110,3 +110,14 @@ body {
   .custom-field {
     margin-bottom: 4px;
   }
+
+  .ticket-checkbox {
+    float: right;
+    margin: 0 0 10px 10px;
+  }
+
+  .ticket-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
