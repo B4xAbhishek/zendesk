@@ -284,6 +284,7 @@
             <!-- Delete Contract Section -->
             <div id="delete-contract" class="section">
                 <h2>Delete Contract</h2>
+                <div id="delete-contract-status" class="status-message"></div>
                 <form id="delete-contract-form">
                     <div class="form-group">
                         <label for="delete-contract-number">Contract Number</label>
@@ -292,6 +293,10 @@
                     </div>
                     <button type="submit" class="c-btn c-btn--danger">Delete Contract</button>
                 </form>
+                <div id="delete-contract-loading" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Deleting contract...</p>
+                </div>
             </div>
         </div>
     </div>
