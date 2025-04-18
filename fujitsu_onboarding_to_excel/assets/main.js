@@ -10,11 +10,64 @@ let formFields = [];
 //Store all tickets and export to excel 
 let allTickets = []
 
+// Store current filter value
+let currentFilter = 'all';
+
 // App settings
 let settings = {
   formId: null,
   maxTickets: 50
 };
+
+// Function to populate project filter dropdown
+async function populateProjectFilter(tickets) {
+  const filterSelect = document.getElementById('projectFilter');
+  const projectValues = new Set();
+  
+  // Add "All Projects" option
+  projectValues.add('all');
+  
+  // Find the project field in form fields (assuming it contains "project" in its title)
+  const projectField = formFields.find(field => field.title.toLowerCase().includes('project'));
+  
+  if (projectField) {
+    // Get unique project values from tickets
+    tickets.forEach(ticket => {
+      const projectValue = getFormattedFieldValue(ticket, projectField);
+      if (projectValue !== 'N/A') {
+        projectValues.add(projectValue);
+      }
+    });
+    
+    // Clear existing options
+    filterSelect.innerHTML = '';
+    
+    // Add options to dropdown
+    Array.from(projectValues).sort().forEach(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value === 'all' ? 'All Projects' : value;
+      filterSelect.appendChild(option);
+    });
+  }
+}
+
+// Function to filter tickets based on selected project
+function filterTickets(tickets) {
+  if (currentFilter === 'all') {
+    return tickets;
+  }
+  
+  const projectField = formFields.find(field => field.title.toLowerCase().includes('project'));
+  if (!projectField) {
+    return tickets;
+  }
+  
+  return tickets.filter(ticket => {
+    const projectValue = getFormattedFieldValue(ticket, projectField);
+    return projectValue === currentFilter;
+  });
+}
 
 document.getElementById('exportBtn').addEventListener('click', async function () {
   const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
@@ -330,7 +383,7 @@ async function fetchOrgName(orgId) {
   }
 }
 
-// Search for tickets with the fujitsu_onboarding tag
+// Modify searchOnboardingTickets to include filter population
 async function searchOnboardingTickets() {
   showLoader();
   
@@ -356,21 +409,14 @@ async function searchOnboardingTickets() {
     // For each ticket in search results, fetch ticket data to get all fields
     const ticketPromises = searchResponse.results.map(async (searchResult) => {
       try {
-        // Get complete ticket data
         const fullTicketResponse = await client.request({
           url: `/api/v2/tickets/${searchResult.id}.json`,
           type: 'GET'
         });
         
-        // Log the first ticket's structure to help with debugging
-        if (searchResult.id === searchResponse.results[0].id) {
-          console.log('First full ticket data structure:', fullTicketResponse.ticket);
-        }
-        
         return fullTicketResponse.ticket;
       } catch (error) {
         console.error(`Error fetching complete data for ticket ${searchResult.id}:`, error);
-        // Return the search result as fallback
         return searchResult;
       }
     });
@@ -378,8 +424,13 @@ async function searchOnboardingTickets() {
     // Wait for all ticket data to be fetched
     const fullTickets = await Promise.all(ticketPromises);
     allTickets = fullTickets;
-    // Display the tickets with complete data
-    await displayTickets(fullTickets);
+    
+    // Populate project filter before displaying tickets
+    await populateProjectFilter(fullTickets);
+    
+    // Display filtered tickets
+    const filteredTickets = filterTickets(fullTickets);
+    await displayTickets(filteredTickets);
     
   } catch (error) {
     console.error('Error searching tickets:', error);
@@ -561,6 +612,13 @@ async function initApp() {
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('refreshBtn').addEventListener('click', function() {
     searchOnboardingTickets();
+  });
+
+  // Add event listener for project filter
+  document.getElementById('projectFilter').addEventListener('change', function(e) {
+    currentFilter = e.target.value;
+    const filteredTickets = filterTickets(allTickets);
+    displayTickets(filteredTickets);
   });
 
   // Initialize the app
