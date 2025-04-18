@@ -242,23 +242,26 @@ document.getElementById('nav-contract-delete').addEventListener('click', functio
 document.getElementById('contract-search-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    document.getElementById('contract-search-loading').classList.add('active');
+    const loadingElement = document.getElementById('contract-search-loading');
     const statusElement = document.getElementById('contract-search-status');
+    const resultsBody = document.getElementById('contract-search-results');
+    
+    loadingElement.classList.add('active');
     statusElement.className = 'status-message';
     statusElement.textContent = '';
+    resultsBody.innerHTML = '';
 
     try {
         const searchParams = {
-            query: document.getElementById('contract-search-query').value.toLowerCase(),
+            query: document.getElementById('contract-search-query').value.trim(),
             status: document.getElementById('contract-search-status-select').value,
             startDate: document.getElementById('contract-search-start-date').value,
             endDate: document.getElementById('contract-search-end-date').value
         };
 
+        console.log('Searching with params:', searchParams);
         const result = await ZendeskAPI.searchContracts(searchParams);
-        const resultsBody = document.getElementById('contract-search-results');
-        resultsBody.innerHTML = '';
-
+        
         if (result && result.contracts && result.contracts.length > 0) {
             result.contracts.forEach(contract => {
                 const row = document.createElement('tr');
@@ -285,7 +288,7 @@ document.getElementById('contract-search-form').addEventListener('submit', async
         statusElement.textContent = `Error searching contracts: ${error.message}`;
         statusElement.classList.add('error');
     } finally {
-        document.getElementById('contract-search-loading').classList.remove('active');
+        loadingElement.classList.remove('active');
     }
 });
 
