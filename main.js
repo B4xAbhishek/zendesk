@@ -385,11 +385,7 @@ document.getElementById('delete-contract-form').addEventListener('submit', async
         statusElement.className = 'status-message error';
         return;
     }
-    
-    if (!confirm(`Are you sure you want to delete contract ${contractNumber}? This action cannot be undone.`)) {
-        return;
-    }
-    
+
     try {
         loadingElement.classList.add('active');
         statusElement.className = 'status-message';
