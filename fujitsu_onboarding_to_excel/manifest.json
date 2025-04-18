@@ -1,0 +1,36 @@
+{
+    "name": "Fujitsu Onboarding to Excel",
+    "author": {
+      "name": "Stewart Dean",
+      "email": "stewart.dean@tdsynnex.com"
+    },
+    "defaultLocale": "en",
+    "private": true,
+    "location": {
+      "support": {
+        "nav_bar": "assets/index.html"
+      }
+    },
+    "version": "1.0.0",
+    "frameworkVersion": "2.0",
+    "parameters": [
+        {
+          "name": "form_id",
+          "type": "number",
+          "required": true,
+          "default": "",
+          "secure": false,
+          "label": "Ticket Form ID",
+          "helpText": "Enter the ID number of the ticket form whose fields should be displayed (find this from the form URL in the Zendesk admin)"
+        },
+        {
+          "name": "max_tickets",
+          "type": "number",
+          "required": false,
+          "default": "50",
+          "secure": false,
+          "label": "Maximum tickets to show",
+          "helpText": "Limit the number of tickets displayed in the app (default: 50)"
+        }
+    ]
+}

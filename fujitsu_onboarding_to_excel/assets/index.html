@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Fujitsu Onboarding Ticket Tracker</title>
+  <script src="https://assets.zendesk.com/apps/sdk/2.0/zaf_sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <h3>Fujitsu Onboarding Tickets</h3>
+  <div id="appInfo" class="app-info"></div>
+  <div id="loader" class="loader"></div>
+  <div id="error" class="error-message"></div>
+  <div id="ticketList" class="ticket-list"></div>
+  <div id="noTickets" class="no-tickets" style="display: none;">No onboarding tickets found.</div>
+  <button id="refreshBtn" class="refresh-btn">Refresh</button>
+  <button id="exportBtn" class="refresh-btn">Export to Excel</button>
+
+  <script src="main.js"></script>
+</body>
+</html>

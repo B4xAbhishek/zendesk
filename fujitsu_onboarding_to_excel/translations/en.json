@@ -1,0 +1,8 @@
+{
+  "app": {
+    "long_description": "Convert Fujitsu onboarding data to Excel file",
+    "installation_instructions": "Click install. Find the ID number of the form and paste it into the appropriate box below.",
+    "short_description": "Convert Fujitsu onboarding data to Excel file",
+    "name": "Fujitsu Onboarding"
+  }
+}
