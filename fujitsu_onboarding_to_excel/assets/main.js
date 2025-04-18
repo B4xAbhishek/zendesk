@@ -31,6 +31,9 @@ document.getElementById('exportBtn').addEventListener('click', async function ()
       allTickets.find(ticket => ticket.id.toString() === checkbox.dataset.ticketId)
     ).filter(Boolean);
 
+    // Sort tickets by subject alphabetically
+    checkedTickets.sort((a, b) => (a.subject || '').localeCompare(b.subject || ''));
+
     // Create a workbook
     const workbook = XLSX.utils.book_new();
 
